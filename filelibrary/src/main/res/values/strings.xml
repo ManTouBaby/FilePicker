@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">fileLibrary</string>
+
+    <string name="image_num">%d张</string>
+</resources>

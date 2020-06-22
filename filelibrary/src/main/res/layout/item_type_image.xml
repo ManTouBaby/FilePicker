@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.mt.filelibrary.widget.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="1dp">
+
+    <com.mt.filelibrary.widget.SquareImageView
+        android:id="@+id/iv_show"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="center" />
+
+    <com.mt.filelibrary.widget.SquareImageView
+        android:id="@+id/iv_show_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#88000000" />
+
+    <RelativeLayout
+        android:id="@+id/icon_select_container"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true">
+
+        <TextView
+            android:id="@+id/icon_select_tag"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/icon_file_select"
+            android:gravity="center"
+            android:textColor="@color/mt_text_white"
+            android:textSize="10sp"
+            tools:ignore="SmallSp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/video_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_vertical|end"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="20dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:src="@mipmap/icon_video" />
+
+        <TextView
+            android:id="@+id/mt_time"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:textSize="10sp"
+            android:layout_marginRight="4dp"
+            android:gravity="center"
+            android:layout_marginLeft="4dp"
+            android:text="00:00"
+            android:textColor="@color/mt_text_white" />
+    </LinearLayout>
+
+</com.mt.filelibrary.widget.SquareRelativeLayout>

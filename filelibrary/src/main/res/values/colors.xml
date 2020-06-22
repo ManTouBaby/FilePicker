@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mt_white_status">#FFFFFF</color>
+    <color name="mt_black_status">#303030</color>
+    <color name="mt_black_bg">#303030</color>
+    <color name="mt_gray_bg">#e1e1e1</color>
+    <color name="mt_text_black">#000000</color>
+    <color name="mt_text_white">#ffffff</color>
+    <color name="mt_white_bg">#FFFFFF</color>
+    <color name="mt_text_deep_gray">#999999</color>
+    <color name="mt_common_bg">#e6e6e6</color>
+    <color name="mt_greed_bg">#75D3AB</color>
+</resources>
