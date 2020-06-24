@@ -27,6 +27,7 @@
         android:padding="16dp"
         android:text="跳转到图片选择器"
         android:textColor="#FFF" />
+
     <TextView
         android:id="@+id/mt_goto_video_picker"
         android:layout_width="match_parent"
@@ -37,6 +38,7 @@
         android:padding="16dp"
         android:text="跳转到视屏选择器"
         android:textColor="#FFF" />
+
     <TextView
         android:id="@+id/mt_goto_image_video_picker"
         android:layout_width="match_parent"
@@ -46,5 +48,38 @@
         android:gravity="center"
         android:padding="16dp"
         android:text="跳转到图片视屏选择器"
+        android:textColor="#FFF" />
+
+    <TextView
+        android:id="@+id/mt_take_photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="跳转到拍照"
+        android:textColor="#FFF" />
+
+    <TextView
+        android:id="@+id/mt_take_video"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="跳转到拍视频"
+        android:textColor="#FFF" />
+
+    <TextView
+        android:id="@+id/mt_take_video_photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="跳转到拍照/拍视频"
         android:textColor="#FFF" />
 </LinearLayout>

@@ -7,7 +7,9 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.mt.filelibrary.FilePicker;
 import com.mt.filelibrary.R;
 import com.mt.filelibrary.base.BaseAdapter;
 import com.mt.filelibrary.base.FileBean;
@@ -83,17 +85,23 @@ public class FileFragment extends BaseFragment {
                     lineTag.setVisibility(View.GONE);
                     selectTag.setImageResource(R.mipmap.icon_go_to);
                 } else {
+                    FileSelect instance = FileSelect.getInstance();
                     fileSize.setText(FileUtil.getStringByLength(data.getFileSize()));
                     lineTag.setVisibility(View.VISIBLE);
                     selectTag.setImageResource(R.drawable.icon_select);
-                    boolean container = FileSelect.getInstance().container(data);
+                    boolean container = instance.container(data);
                     selectTag.setSelected(container);
                     selectTag.setOnClickListener(v -> {
-                        selectTag.setSelected(!v.isSelected());
-                        if (v.isSelected()) {
-                            FileSelect.getInstance().addFileBean(data);
+                        int maxCount = FilePicker.getBuilder().getMaxCount();
+                        if (!v.isSelected()) {
+                            if (instance.getSelectFiles().size()< maxCount){
+                                v.setSelected(!v.isSelected());
+                                instance.addFileBean(data);
+                            }else {
+                                Toast.makeText(getContext(), String.format("最多可选%d张", maxCount), Toast.LENGTH_SHORT).show();
+                            }
                         } else {
-                            FileSelect.getInstance().removeFileBean(data);
+                            instance.removeFileBean(data);
                         }
                         notifyItemChanged(position);
                     });
@@ -121,7 +129,7 @@ public class FileFragment extends BaseFragment {
             fileBean.setFileName(file.getName());
             fileBean.setModifyMilli(file.lastModified());
             fileBean.setFileSize(file.length());
-            fileBean.setFileID(file.getParent().hashCode());
+            fileBean.setFileID(file.getPath().hashCode());
             String absolutePath = file.getAbsolutePath();
             fileBean.setPath(absolutePath);
             if (file.isDirectory()) {

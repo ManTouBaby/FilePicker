@@ -1,13 +1,17 @@
 package com.mt.filelibrary.base;
 
 import android.support.annotation.IntDef;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.mt.filelibrary.FilePicker;
+import com.mt.filelibrary.R;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,70 +32,105 @@ public abstract class BaseSelectAdapter extends BaseAdapter<FileBean> {
     public final static int SELECT_MODE_SINGLE = 0;
     public final static int SELECT_MODE_MULTI = 1;
     public final static int SELECT_MODE_MULTI_BY_INDEX = 2;
+    public final static int TYPE_CAMERA = 0x100;
+    public final static int TYPE_SHOW = 0x200;
+    public final static String TAKE_CAMERA = "TAKE_CAMERA";
 
     //    protected Map<Integer, FileBean> selectMap = new LinkedHashMap<>();
-    private int mSelectMode = SELECT_MODE_SINGLE;
+    private int mSelectMode;
 
 
-    public BaseSelectAdapter(int mResLayout) {
-        this(null, mResLayout, SELECT_MODE_SINGLE);
+    public BaseSelectAdapter(@SelectMode int selectMode) {
+        this(new ArrayList<>(), selectMode);
     }
 
-
-    public BaseSelectAdapter(int mResLayout, @SelectMode int selectMode) {
-        this(null, mResLayout, selectMode);
+    public BaseSelectAdapter(List<FileBean> mDates) {
+        this(mDates, SELECT_MODE_SINGLE);
     }
 
-    public BaseSelectAdapter(List<FileBean> mDates, int mResLayout) {
-        this(mDates, mResLayout, SELECT_MODE_SINGLE);
-    }
-
-    public BaseSelectAdapter(List<FileBean> mDates, int mResLayout, @SelectMode int selectMode) {
-        super(mDates, mResLayout);
+    public BaseSelectAdapter(List<FileBean> mDates, @SelectMode int selectMode) {
+        super(mDates, R.layout.item_type_image);
         this.mSelectMode = selectMode;
         mFileSelect = FileSelect.getInstance();
         mBuilder = FilePicker.getBuilder();
+        if (mBuilder.isShowCamera()) addFileBean(mDates);
+    }
+
+    private void addFileBean(List<FileBean> mDates) {
+        FileBean fileBean = new FileBean();
+        fileBean.setFileName(TAKE_CAMERA);
+        mDates.add(0, fileBean);
+    }
+
+    @Override
+    public void setDates(List<FileBean> mDates) {
+        if (mBuilder.isShowCamera()) addFileBean(mDates);
+        super.setDates(mDates);
+    }
+
+    @Override
+    public SmartVH onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view;
+        if (viewType == TYPE_CAMERA) {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_type_camera, null);
+        } else {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_type_image, null);
+        }
+        return new SmartVH(view);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (TAKE_CAMERA.equals(mDates.get(position).getFileName())) {
+            return TYPE_CAMERA;
+        } else {
+            return TYPE_SHOW;
+        }
     }
 
     @Override
     protected void onBindView(SmartVH holder, FileBean data, int position) {
-        View viewTag = getTagView(holder);
-        viewTag.setOnClickListener(v -> {
-            if (mSelectMode == SELECT_MODE_SINGLE) {
-                FileSelect.getInstance().clearSelect();
-                FileSelect.getInstance().addFileBean(data);
-                notifyDataSetChanged();
-            }
-
-            if (mSelectMode == SELECT_MODE_MULTI) {
-                if (!mFileSelect.container(data)) {
+        if (TAKE_CAMERA.equals(data.getFileName())) {
+            addChildViewClick(holder.getImage(R.id.iv_show_bg), data, position);
+        } else {
+            View viewTag = getTagView(holder);
+            viewTag.setOnClickListener(v -> {
+                if (mSelectMode == SELECT_MODE_SINGLE) {
+                    FileSelect.getInstance().clearSelect();
                     FileSelect.getInstance().addFileBean(data);
-                } else {
-                    FileSelect.getInstance().removeFileBean(data);
+                    notifyDataSetChanged();
                 }
-                notifyItemChanged(position);
-            }
 
-            if (mSelectMode == SELECT_MODE_MULTI_BY_INDEX) {
-                if (!mFileSelect.container(data)) {
-                    if (mFileSelect.getSelectSize() < mBuilder.getMaxCount()) {
+                if (mSelectMode == SELECT_MODE_MULTI) {
+                    if (!mFileSelect.container(data)) {
                         FileSelect.getInstance().addFileBean(data);
-                        notifyItemChanged(position);
                     } else {
-                        Toast.makeText(viewTag.getContext(), String.format("最多可选%d张", mBuilder.getMaxCount()), Toast.LENGTH_SHORT).show();
+                        FileSelect.getInstance().removeFileBean(data);
                     }
-                } else {
-                    FileSelect.getInstance().removeFileBean(data);
-                    notifySelectIndex();
                     notifyItemChanged(position);
                 }
-                if (mOnItemSelectListener != null) {
-                    mOnItemSelectListener.OnItemSelect(mFileSelect.getSelectFiles());
+
+                if (mSelectMode == SELECT_MODE_MULTI_BY_INDEX) {
+                    if (!mFileSelect.container(data)) {
+                        if (mFileSelect.getSelectSize() < mBuilder.getMaxCount()) {
+                            FileSelect.getInstance().addFileBean(data);
+                            notifyItemChanged(position);
+                        } else {
+                            Toast.makeText(viewTag.getContext(), String.format("最多可选%d张", mBuilder.getMaxCount()), Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        FileSelect.getInstance().removeFileBean(data);
+                        notifySelectIndex();
+                        notifyItemChanged(position);
+                    }
+                    if (mOnItemSelectListener != null) {
+                        mOnItemSelectListener.OnItemSelect(mFileSelect.getSelectFiles());
+                    }
                 }
-            }
-        });
-        viewTag.setSelected(mFileSelect.container(data));
-        onSelectBindView(holder, viewTag, data, position);
+            });
+            viewTag.setSelected(mFileSelect.container(data));
+            onSelectBindView(holder, viewTag, data, position);
+        }
     }
 
     private void notifySelectIndex() {

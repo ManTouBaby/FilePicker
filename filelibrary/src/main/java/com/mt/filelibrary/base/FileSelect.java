@@ -11,7 +11,10 @@ import java.util.List;
 public class FileSelect {
     private static FileSelect mFileSelect;
     private List<FileBean> mSelectFiles;
-    List<OnSelectItemListener> onSelectItemListenerList = new ArrayList<>();
+    private FileBean mFileBean;
+    private List<OnSelectItemListener> onSelectItemListenerList = new ArrayList<>();
+    private OnSelectFinishListener mOnSelectFinishListener;
+    private OnCameraListener mOnCameraListener;
 
     private FileSelect() {
         mSelectFiles = new ArrayList<>();
@@ -35,12 +38,33 @@ public class FileSelect {
         mSelectFiles = null;
     }
 
+    public void setOnCameraListener(OnCameraListener mOnCameraListener) {
+        this.mOnCameraListener = mOnCameraListener;
+    }
+
+    public void setOnSelectFinishListener(OnSelectFinishListener mOnSelectFinishListener) {
+        this.mOnSelectFinishListener = mOnSelectFinishListener;
+    }
+
     public void addSelectItemListener(OnSelectItemListener mOnSelectItemListener) {
         this.onSelectItemListenerList.add(mOnSelectItemListener);
     }
 
     public void removeSelectItemListener(OnSelectItemListener mOnSelectItemListener) {
         this.onSelectItemListenerList.remove(mOnSelectItemListener);
+    }
+
+    public void finishSelect() {
+        if (mOnSelectFinishListener != null) {
+            mOnSelectFinishListener.onSelectFinish(new ArrayList<>(mSelectFiles));
+        }
+    }
+
+    public void setFileBean(FileBean mFileBean) {
+        this.mFileBean = mFileBean;
+        if (mOnCameraListener != null) {
+            mOnCameraListener.onCamera(mFileBean);
+        }
     }
 
     public int getSelectSize() {
@@ -62,6 +86,7 @@ public class FileSelect {
             }
         }
     }
+
 
     public void addFileBean(FileBean fileBean) {
         mSelectFiles.add(fileBean);

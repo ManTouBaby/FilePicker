@@ -9,5 +9,8 @@ public enum FileMode {
     IMAGE,
     VIDEO,
     IMAGE_VIDEO,
-    FILE
+    FILE,
+    TAKE_PHOTO,
+    TAKE_VIDEO,
+    TAKE_PHOTO_IMAGE
 }

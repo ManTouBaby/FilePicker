@@ -1,10 +1,12 @@
 package com.mt.filelibrary.page;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,7 +22,6 @@ import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.mt.filelibrary.FilePicker;
 import com.mt.filelibrary.R;
 import com.mt.filelibrary.base.BaseAdapter;
@@ -28,16 +29,18 @@ import com.mt.filelibrary.base.BaseSelectAdapter;
 import com.mt.filelibrary.base.FileBean;
 import com.mt.filelibrary.base.FileFolder;
 import com.mt.filelibrary.base.FileSelect;
+import com.mt.filelibrary.base.OnCameraListener;
 import com.mt.filelibrary.base.OnItemChildViewClickListener;
 import com.mt.filelibrary.base.OnItemClickListener;
 import com.mt.filelibrary.base.SmartVH;
+import com.mt.filelibrary.camera.CameraHelper;
+import com.mt.filelibrary.camera.CameraOpenType;
 import com.mt.filelibrary.utils.DateUtil;
 import com.mt.filelibrary.utils.FileLoader;
 import com.mt.filelibrary.utils.FileModel;
-import com.mt.filelibrary.utils.MediaPreShow;
+import com.mt.filelibrary.utils.GlideUtil;
 import com.mt.filelibrary.widget.SquareImageView;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +49,7 @@ import java.util.List;
  * @date:2020/05/18 17:03
  * @desc:
  */
-public class ImageVideoFragment extends BaseFragment {
+public class ImageVideoFragment extends BaseFragment implements OnCameraListener {
     TextView mSelectName;
     private BaseSelectAdapter mBaseAdapter;
     private List<FileFolder> mMediaFolder;
@@ -70,7 +73,7 @@ public class ImageVideoFragment extends BaseFragment {
         mSelectName.setOnClickListener(v -> showFolders());
         RecyclerView mRecyclerView = findViewById(R.id.mt_image_video_show);
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 4));
-        mRecyclerView.setAdapter(mBaseAdapter = new BaseSelectAdapter(new ArrayList<>(), R.layout.item_type_image, BaseSelectAdapter.SELECT_MODE_MULTI_BY_INDEX) {
+        mRecyclerView.setAdapter(mBaseAdapter = new BaseSelectAdapter(BaseSelectAdapter.SELECT_MODE_MULTI_BY_INDEX) {
 
             @Override
             protected void onSelectBindView(SmartVH holder, View tagView, FileBean data, int position) {
@@ -86,18 +89,17 @@ public class ImageVideoFragment extends BaseFragment {
                     selectBGTag.setVisibility(View.GONE);
                 }
                 holder.getText(R.id.mt_time).setText(DateUtil.getStrByLong(data.getDuration()));
-                Glide.with(holder.itemView.getContext()).clear(squareImageView);
                 if (data.getDuration() > 0) {//视屏类型
                     videoContainer.setVisibility(View.VISIBLE);
-                    if (TextUtils.isEmpty(data.getMimePath())){
-                        Glide.with(holder.itemView.getContext()).load(Uri.fromFile(new File(data.getPath()))).into(squareImageView);
-                    }else {
-                        Glide.with(holder.itemView.getContext()).load(data.getMimePath()).into(squareImageView);
+                    if (TextUtils.isEmpty(data.getMimePath())) {
+                        GlideUtil.loadImageWithCache(squareImageView, data.getPath());
+                    } else {
+                        GlideUtil.loadImageWithCache(squareImageView, data.getMimePath());
                     }
 
                 } else {
                     videoContainer.setVisibility(View.GONE);
-                    Glide.with(holder.itemView).load(data.getPath()).into(squareImageView);
+                    GlideUtil.loadImageWithCache(squareImageView, data.getPath());
                 }
                 addChildViewClick(squareImageView, data, position);
             }
@@ -113,16 +115,49 @@ public class ImageVideoFragment extends BaseFragment {
         fileLoader.getFileCursor(getContext());
         fileModel.getFileBeanLiveData().observe(this, fileBeans -> {
             this.mFileBeans = (ArrayList<FileBean>) fileBeans;
-            mBaseAdapter.setDates(fileBeans);
-            mMediaFolder = fileLoader.getMediaFolder(fileBeans);
+            mBaseAdapter.setDates(mFileBeans);
+            mMediaFolder = fileLoader.getMediaFolder(mFileBeans);
         });
 
         mBaseAdapter.setOnItemChildViewClickListener((OnItemChildViewClickListener<FileBean>) (view, data, position) -> {
-            MediaPreShow.showPre(getActivity(), view, data, mFileBeans);
+            if (BaseSelectAdapter.TAKE_CAMERA.equals(data.getFileName())) {
+                switch (mBuilder.getFileMode()) {
+                    case VIDEO:
+                        new CameraHelper.Builder()
+                                .setCameraOpenType(CameraOpenType.TAKE_VIDEO)
+                                .setDuration(mBuilder.getVideoDuration())
+                                .setSavePath(mBuilder.getSavePath())
+                                .build()
+                                .setOnCameraListener(this)
+                                .openCamera(getContext());
+                        break;
+                    case IMAGE:
+                        new CameraHelper.Builder()
+                                .setCameraOpenType(CameraOpenType.TAKE_PHOTO)
+                                .setSavePath(mBuilder.getSavePath())
+                                .build()
+                                .setOnCameraListener(this)
+                                .openCamera(getContext());
+                        break;
+                    case IMAGE_VIDEO:
+                        new CameraHelper.Builder()
+                                .setCameraOpenType(CameraOpenType.TAKE_PHOTO_IMAGE)
+                                .setSavePath(mBuilder.getSavePath())
+                                .setDuration(mBuilder.getVideoDuration())
+                                .build()
+                                .setOnCameraListener(this)
+                                .openCamera(getContext());
+                        break;
+                }
+            } else {
+                Intent intent = new Intent(getContext(), ACPreMediaShow.class);
+                intent.putExtra("FileList", mFileBeans);
+                intent.putExtra("FileClick", mFileBeans);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), view, "ABC");
+                ActivityCompat.startActivity(getContext(), intent, options.toBundle());
+            }
         });
-        mBaseAdapter.setOnItemSelectListener((BaseSelectAdapter.OnItemSelectListener<FileBean>) dates -> {
-            FileSelect.getInstance().setSelectFiles(dates);
-        });
+        mBaseAdapter.setOnItemSelectListener((BaseSelectAdapter.OnItemSelectListener<FileBean>) dates -> FileSelect.getInstance().setSelectFiles(dates));
     }
 
     @Override
@@ -153,7 +188,8 @@ public class ImageVideoFragment extends BaseFragment {
                     View showTag = holder.getViewById(R.id.iv_item_check);
                     showTag.setVisibility(data.isCheck() ? View.VISIBLE : View.GONE);
                     //加载图片
-                    Glide.with(holder.itemView).load(folderCover).into(mImageCover);
+//                    Glide.with(holder.itemView).load(folderCover).into(mImageCover);
+                    GlideUtil.loadImageWithCache(mImageCover, folderCover);
                     holder.itemView.setOnClickListener(v -> {
                         if (currentClick != position) {
                             mDates.get(currentClick).setCheck(false);
@@ -213,5 +249,11 @@ public class ImageVideoFragment extends BaseFragment {
         WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
         layoutParams.alpha = f;
         getActivity().getWindow().setAttributes(layoutParams);
+    }
+
+    @Override
+    public void onCamera(FileBean fileBean) {
+        mFileBeans.add(1, fileBean);
+        FileSelect.getInstance().addFileBean(fileBean);
     }
 }

@@ -18,16 +18,22 @@ public class GlideUtil {
     public static void loadImage(ImageView imageView, String url) {
         RequestOptions options = new RequestOptions();
         options.skipMemoryCache(true);
-        options.diskCacheStrategy(DiskCacheStrategy.ALL);//全部使用磁盘缓存
-        Glide.get(imageView.getContext()).clearDiskCache();
+        options.diskCacheStrategy(DiskCacheStrategy.NONE);//全部使用磁盘缓存
+//        Glide.get(imageView.getContext()).clearDiskCache();
+        new Thread(()-> Glide.get(imageView.getContext()).clearDiskCache()).start();
         Glide.with(imageView.getContext()).load(url).apply(options).into(imageView);
+    }
+
+    public static void loadImageWithCache(ImageView imageView, String url) {
+        Glide.with(imageView.getContext()).load(url).into(imageView);
     }
 
     public static void loadImage(Context context, String url, SimpleTarget<Drawable> simpleTarget) {
         RequestOptions options = new RequestOptions();
         options.skipMemoryCache(true);
-        options.diskCacheStrategy(DiskCacheStrategy.ALL);//全部使用磁盘缓存
-        Glide.get(context).clearDiskCache();
+        options.diskCacheStrategy(DiskCacheStrategy.NONE);//全部使用磁盘缓存
+//        Glide.get(context).clearDiskCache();
+        new Thread(()-> Glide.get(context).clearDiskCache()).start();
         Glide.with(context).load(url).apply(options).into(simpleTarget);
     }
 }

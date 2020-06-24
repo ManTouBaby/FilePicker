@@ -33,7 +33,7 @@ public class FormatUtils {
         }
         //获取扩展名并且全部转小写
         String extension = getFormatName(fileName).toLowerCase();
-        System.out.println("文件类型:"+extension);
+//        System.out.println("文件类型:"+extension);
         if (TextUtils.isEmpty(extension)) {
             return FormatEnum.UNKNOWN.ICON;
         }

@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,7 +28,7 @@ import java.util.List;
  * @date:2020/06/10 10:48
  * @desc:
  */
-public class ACPreMediaShow extends AppCompatActivity implements OnSelectItemListener {
+public class ACPreMediaShow extends AppCompatActivity implements OnSelectItemListener, View.OnClickListener {
     private PhotoVideoBigShowAdapter mShowAdapter;
     private FileBean mFileBean;
     private ArrayList<FileBean> mFileBeans;
@@ -43,8 +44,10 @@ public class ACPreMediaShow extends AppCompatActivity implements OnSelectItemLis
         setContentView(R.layout.ac_pre_show);
         findViewById(R.id.mi_iv_back).setOnClickListener(v -> finish());
         mCompleteBtn = findViewById(R.id.mt_complete_btn);
+        mCompleteBtn.setOnClickListener(this);
         mBuilder = FilePicker.getBuilder();
         mFileBeans = (ArrayList<FileBean>) getIntent().getSerializableExtra("FileList");
+        if (mBuilder.isShowCamera())mFileBeans.remove(0);
         mFileBean = (FileBean) getIntent().getSerializableExtra("FileClick");
         for (int i = 0; i < mFileBeans.size(); i++) {
             FileBean bean = mFileBeans.get(i);
@@ -105,22 +108,24 @@ public class ACPreMediaShow extends AppCompatActivity implements OnSelectItemLis
             public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX, int velocityY) {
                 // TODO 找到对应的Index
                 int targetPos = super.findTargetSnapPosition(layoutManager, velocityX, velocityY);
-                mCurrentPage = targetPos;
-                FileBean bean = mFileBeans.get(targetPos);
-                String label = "";
-                System.out.println("-----------------findTargetSnapPosition");
-                if (FileSelect.getInstance().container(bean)) {
-                    System.out.println("-----------------FileSelect.getInstance().container(bean)");
-                    FileBean fileBean = FileSelect.getInstance().getFileBean(bean);
-                    label = fileBean.getSelectIndex() + "";
-                    mSelectTag.setSelected(true);
-                } else {
-                    System.out.println("-----------------FileSelect.getInstance().container(bean)---else");
-                    mSelectTag.setSelected(false);
+                if (targetPos <= (mFileBeans.size() - 1)) {
+                    mCurrentPage = targetPos;
+                    FileBean bean = mFileBeans.get(targetPos);
+                    String label = "";
+                    System.out.println("-----------------findTargetSnapPosition");
+                    if (FileSelect.getInstance().container(bean)) {
+                        System.out.println("-----------------FileSelect.getInstance().container(bean)");
+                        FileBean fileBean = FileSelect.getInstance().getFileBean(bean);
+                        label = fileBean.getSelectIndex() + "";
+                        mSelectTag.setSelected(true);
+                    } else {
+                        System.out.println("-----------------FileSelect.getInstance().container(bean)---else");
+                        mSelectTag.setSelected(false);
+                    }
+                    System.out.println("-----------------RESULT");
+                    mSelectTag.setText(label);
+                    System.out.println("-----------------setText");
                 }
-                System.out.println("-----------------RESULT");
-                mSelectTag.setText(label);
-                System.out.println("-----------------setText");
                 return targetPos;
             }
         };
@@ -137,13 +142,19 @@ public class ACPreMediaShow extends AppCompatActivity implements OnSelectItemLis
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         mShowAdapter.onDestroy();
         FileSelect.getInstance().removeSelectItemListener(this);
+        super.onDestroy();
     }
 
     @Override
     public void onSelectItem(List<FileBean> fileBeans) {
         initCompleteBtn(fileBeans);
+    }
+
+    @Override
+    public void onClick(View v) {
+        FileSelect.getInstance().finishSelect();
+        finish();
     }
 }

@@ -5,18 +5,24 @@ import android.content.Intent;
 import android.support.annotation.IntDef;
 
 import com.mt.filelibrary.base.FileBean;
+import com.mt.filelibrary.base.FileSelect;
+import com.mt.filelibrary.base.OnCameraListener;
+import com.mt.filelibrary.base.OnSelectFinishListener;
+import com.mt.filelibrary.camera.CameraHelper;
+import com.mt.filelibrary.camera.CameraOpenType;
 import com.mt.filelibrary.page.ACFileShow;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author:MtBaby
  * @date:2020/05/18 11:34
  * @desc:
  */
-public class FilePicker {
+public class FilePicker implements OnCameraListener {
     private static Builder mBuilder;
 
     private FilePicker(Builder builder) {
@@ -27,25 +33,65 @@ public class FilePicker {
         return mBuilder;
     }
 
-    @IntDef({SELECT_MODE_SINGLE, SELECT_MODE_MULTI})
-    @Retention(RetentionPolicy.SOURCE)
-    @interface SelectMode {
+    @Override
+    public void onCamera(FileBean fileBean) {
+        FileSelect.getInstance().addFileBean(fileBean);
+        FileSelect.getInstance().finishSelect();
     }
 
-    public final static int SELECT_MODE_SINGLE = 0;
-    public final static int SELECT_MODE_MULTI = 1;
-
+    public FilePicker setOnSelectFinishListener(OnSelectFinishListener onSelectFinishListener) {
+        FileSelect.getInstance().setOnSelectFinishListener(onSelectFinishListener);
+        return this;
+    }
 
     public void openFilePicker(Context context) {
-        context.startActivity(new Intent(context, ACFileShow.class));
+        FileMode fileMode = mBuilder.getFileMode();
+        if (fileMode == FileMode.TAKE_PHOTO) {
+            FileSelect.getInstance().clearSelect();
+            new CameraHelper.Builder()
+                    .setCameraOpenType(CameraOpenType.TAKE_PHOTO)
+                    .build()
+                    .setOnCameraListener(this)
+                    .openCamera(context);
+        } else if (fileMode == FileMode.TAKE_VIDEO) {
+            FileSelect.getInstance().clearSelect();
+            new CameraHelper.Builder()
+                    .setCameraOpenType(CameraOpenType.TAKE_VIDEO)
+                    .build()
+                    .setOnCameraListener(this)
+                    .openCamera(context);
+        } else if (fileMode == FileMode.TAKE_PHOTO_IMAGE) {
+            FileSelect.getInstance().clearSelect();
+            new CameraHelper.Builder()
+                    .setCameraOpenType(CameraOpenType.TAKE_PHOTO_IMAGE)
+                    .build()
+                    .setOnCameraListener(this)
+                    .openCamera(context);
+        } else {
+            if (mBuilder.getSelectionMode() == SelectMode.SELECT_MODE_SINGLE) mBuilder.setMaxCount(1);
+            context.startActivity(new Intent(context, ACFileShow.class));
+        }
     }
 
     public static class Builder {
         private FileMode fileMode = FileMode.IMAGE_VIDEO;
         private String title;//标题
-        private int selectionMode = SELECT_MODE_SINGLE;//选择模式，默认单选
+        private SelectMode selectionMode= SelectMode.SELECT_MODE_SINGLE;//选择模式，默认单选
         private int maxCount = 1;//最大选择数量，默认为1
         private ArrayList<FileBean> fileSelect = new ArrayList<>();//上一次选择的图片地址集合
+
+        private boolean showCamera = false;//是否开启拍照
+        private int videoDuration = 15000;
+        private String savePath;
+
+        public String getSavePath() {
+            return savePath;
+        }
+
+        public Builder setSavePath(String savePath) {
+            this.savePath = savePath;
+            return this;
+        }
 
         public Builder setFileMode(FileMode fileMode) {
             this.fileMode = fileMode;
@@ -57,8 +103,26 @@ public class FilePicker {
             return this;
         }
 
-        public Builder setSelectionMode(@SelectMode int selectionMode) {
+        public Builder setSelectionMode(SelectMode selectionMode) {
             this.selectionMode = selectionMode;
+            return this;
+        }
+
+        public int getVideoDuration() {
+            return videoDuration;
+        }
+
+        public Builder setVideoDuration(int videoDuration) {
+            this.videoDuration = videoDuration;
+            return this;
+        }
+
+        public boolean isShowCamera() {
+            return showCamera;
+        }
+
+        public Builder setShowCamera(boolean showCamera) {
+            this.showCamera = showCamera;
             return this;
         }
 
@@ -67,8 +131,8 @@ public class FilePicker {
             return this;
         }
 
-        public Builder setFileSelect(ArrayList<FileBean> fileSelect) {
-            this.fileSelect = fileSelect;
+        public Builder setFileSelect(List<FileBean> fileSelect) {
+            this.fileSelect = (ArrayList<FileBean>) fileSelect;
             return this;
         }
 
@@ -80,7 +144,7 @@ public class FilePicker {
             return title;
         }
 
-        public int getSelectionMode() {
+        public SelectMode getSelectionMode() {
             return selectionMode;
         }
 
@@ -97,11 +161,4 @@ public class FilePicker {
         }
     }
 
-    public static class ImageVideoBuilder extends Builder {
-        private boolean showCamera;//是否显示拍照Item，默认不显示
-        private boolean showImage = true;//是否显示图片，默认显示
-        private boolean showVideo = true;//是否显示视频，默认显示
-        private boolean filterGif = false;//是否过滤GIF图片，默认不过滤
-        private boolean singleType;//是否只支持选单类型（图片或者视频）
-    }
 }
