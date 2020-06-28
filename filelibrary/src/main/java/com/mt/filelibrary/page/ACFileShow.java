@@ -92,7 +92,7 @@ public class ACFileShow extends AppCompatActivity implements OnSelectItemListene
     public void onClick(View v) {
         int id = v.getId();
         if (id == R.id.mt_complete_btn) {
-            FileSelect.getInstance().finishSelect();
+            FileSelect.getInstance().finishSelect(mBuilder.getFileMode());
             finish();
         } else if (id == R.id.mi_iv_back) {
             onBackPressed();

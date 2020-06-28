@@ -96,10 +96,10 @@ public class MainActivity extends AppCompatActivity implements OnSelectFinishLis
 
 
     @Override
-    public void onSelectFinish(List<FileBean> fileBeans) {
+    public void onSelectFinish(FileMode fileMode, List<FileBean> fileBeans) {
         this.fileBeans = fileBeans;
         for (FileBean fileBean : fileBeans) {
-            System.out.println(fileBean.getFileName()+"--"+fileBean.getPath());
+            System.out.println(fileBean.getFileName() + "--" + fileBean.getPath());
         }
     }
 }

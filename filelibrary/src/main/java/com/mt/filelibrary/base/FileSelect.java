@@ -1,5 +1,7 @@
 package com.mt.filelibrary.base;
 
+import com.mt.filelibrary.FileMode;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,9 +56,9 @@ public class FileSelect {
         this.onSelectItemListenerList.remove(mOnSelectItemListener);
     }
 
-    public void finishSelect() {
+    public void finishSelect(FileMode fileMode) {
         if (mOnSelectFinishListener != null) {
-            mOnSelectFinishListener.onSelectFinish(new ArrayList<>(mSelectFiles));
+            mOnSelectFinishListener.onSelectFinish(fileMode,new ArrayList<>(mSelectFiles));
         }
     }
 

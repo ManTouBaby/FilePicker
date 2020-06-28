@@ -12,8 +12,6 @@ import com.mt.filelibrary.camera.CameraHelper;
 import com.mt.filelibrary.camera.CameraOpenType;
 import com.mt.filelibrary.page.ACFileShow;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +34,7 @@ public class FilePicker implements OnCameraListener {
     @Override
     public void onCamera(FileBean fileBean) {
         FileSelect.getInstance().addFileBean(fileBean);
-        FileSelect.getInstance().finishSelect();
+        FileSelect.getInstance().finishSelect(mBuilder.getFileMode());
     }
 
     public FilePicker setOnSelectFinishListener(OnSelectFinishListener onSelectFinishListener) {

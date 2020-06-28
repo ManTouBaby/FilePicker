@@ -154,7 +154,7 @@ public class ACPreMediaShow extends AppCompatActivity implements OnSelectItemLis
 
     @Override
     public void onClick(View v) {
-        FileSelect.getInstance().finishSelect();
+        FileSelect.getInstance().finishSelect(mBuilder.getFileMode());
         finish();
     }
 }
