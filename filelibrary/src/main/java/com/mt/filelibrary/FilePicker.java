@@ -20,7 +20,7 @@ import java.util.List;
  * @date:2020/05/18 11:34
  * @desc:
  */
-public class FilePicker implements OnCameraListener {
+public class FilePicker {
     private static Builder mBuilder;
 
     private FilePicker(Builder builder) {
@@ -31,11 +31,6 @@ public class FilePicker implements OnCameraListener {
         return mBuilder;
     }
 
-    @Override
-    public void onCamera(FileBean fileBean) {
-        FileSelect.getInstance().addFileBean(fileBean);
-        FileSelect.getInstance().finishSelect(mBuilder.getFileMode());
-    }
 
     public FilePicker setOnSelectFinishListener(OnSelectFinishListener onSelectFinishListener) {
         FileSelect.getInstance().setOnSelectFinishListener(onSelectFinishListener);
@@ -49,32 +44,41 @@ public class FilePicker implements OnCameraListener {
             new CameraHelper.Builder()
                     .setCameraOpenType(CameraOpenType.TAKE_PHOTO)
                     .build()
-                    .setOnCameraListener(this)
+                    .setOnCameraListener(onCameraListener)
                     .openCamera(context);
         } else if (fileMode == FileMode.TAKE_VIDEO) {
             FileSelect.getInstance().clearSelect();
             new CameraHelper.Builder()
                     .setCameraOpenType(CameraOpenType.TAKE_VIDEO)
                     .build()
-                    .setOnCameraListener(this)
+                    .setOnCameraListener(onCameraListener)
                     .openCamera(context);
         } else if (fileMode == FileMode.TAKE_PHOTO_IMAGE) {
             FileSelect.getInstance().clearSelect();
             new CameraHelper.Builder()
                     .setCameraOpenType(CameraOpenType.TAKE_PHOTO_IMAGE)
                     .build()
-                    .setOnCameraListener(this)
+                    .setOnCameraListener(onCameraListener)
                     .openCamera(context);
         } else {
-            if (mBuilder.getSelectionMode() == SelectMode.SELECT_MODE_SINGLE) mBuilder.setMaxCount(1);
+            if (mBuilder.getSelectionMode() == SelectMode.SELECT_MODE_SINGLE)
+                mBuilder.setMaxCount(1);
             context.startActivity(new Intent(context, ACFileShow.class));
         }
     }
 
+    private OnCameraListener onCameraListener = new OnCameraListener() {
+        @Override
+        public void onCamera(FileBean fileBean) {
+            FileSelect.getInstance().addFileBean(fileBean);
+            FileSelect.getInstance().finishSelect(mBuilder.getFileMode());
+        }
+    };
+
     public static class Builder {
         private FileMode fileMode = FileMode.IMAGE_VIDEO;
         private String title;//标题
-        private SelectMode selectionMode= SelectMode.SELECT_MODE_SINGLE;//选择模式，默认单选
+        private SelectMode selectionMode = SelectMode.SELECT_MODE_SINGLE;//选择模式，默认单选
         private int maxCount = 1;//最大选择数量，默认为1
         private ArrayList<FileBean> fileSelect = new ArrayList<>();//上一次选择的图片地址集合
 

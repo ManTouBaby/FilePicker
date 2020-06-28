@@ -154,7 +154,7 @@ public class ImageVideoFragment extends BaseFragment implements OnCameraListener
                 intent.putExtra("FileList", mFileBeans);
                 intent.putExtra("FileClick", data);
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), view, "ABC");
-                ActivityCompat.startActivity(getContext(), intent, options.toBundle());
+                ActivityCompat.startActivityForResult(getActivity(), intent, 0x11, options.toBundle());
             }
         });
         mBaseAdapter.setOnItemSelectListener((BaseSelectAdapter.OnItemSelectListener<FileBean>) dates -> FileSelect.getInstance().setSelectFiles(dates));
