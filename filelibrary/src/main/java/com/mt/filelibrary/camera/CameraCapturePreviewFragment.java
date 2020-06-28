@@ -64,12 +64,7 @@ public class CameraCapturePreviewFragment extends BaseFragment {
             viewVideoView.setVideoPath(filePath);
             // viewVideoView.setMediaController(new MediaController(getContext()));
             viewVideoView.setMediaController(null);
-            viewVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    viewVideoView.start();
-                }
-            });
+            viewVideoView.setOnPreparedListener(mp -> viewVideoView.start());
 
             viewVideoView.setOnCompletionListener(mp -> viewVideoView.start());
 

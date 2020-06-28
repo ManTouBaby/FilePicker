@@ -152,7 +152,7 @@ public class ImageVideoFragment extends BaseFragment implements OnCameraListener
             } else {
                 Intent intent = new Intent(getContext(), ACPreMediaShow.class);
                 intent.putExtra("FileList", mFileBeans);
-                intent.putExtra("FileClick", mFileBeans);
+                intent.putExtra("FileClick", data);
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), view, "ABC");
                 ActivityCompat.startActivity(getContext(), intent, options.toBundle());
             }
