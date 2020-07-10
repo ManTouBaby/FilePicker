@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="#000">
 
-    <com.mt.filelibrary.widget.AutoFitTextureView
+    <com.hy.filelibrary.widget.AutoFitTextureView
         android:id="@+id/camera_capture_record_surface_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -98,7 +98,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1">
 
-                <com.mt.filelibrary.widget.CaptureButton
+                <com.hy.filelibrary.widget.CaptureButton
                     android:id="@+id/camera_capture_record_capture_button"
                     android:layout_width="100dp"
                     android:layout_height="100dp"

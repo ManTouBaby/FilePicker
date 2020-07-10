@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.mt.filelibrary.widget.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.hy.filelibrary.widget.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="1dp">
 
-    <com.mt.filelibrary.widget.SquareImageView
+    <com.hy.filelibrary.widget.SquareImageView
         android:id="@+id/iv_show"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="center" />
 
-    <com.mt.filelibrary.widget.SquareImageView
+    <com.hy.filelibrary.widget.SquareImageView
         android:id="@+id/iv_show_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -64,4 +64,4 @@
             android:textColor="@color/mt_text_white" />
     </LinearLayout>
 
-</com.mt.filelibrary.widget.SquareRelativeLayout>
+</com.hy.filelibrary.widget.SquareRelativeLayout>
